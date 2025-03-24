@@ -93,7 +93,7 @@ fi
 
 if [ -z "${PYTHON_RUNTIME_VERSION:-}" ] ; then
   log "Read Python version from uv.lock"
-  PYTHON_RUNTIME_VERSION=$(head --lines=2 "uv.lock" | sed -nE 's/^requires-python[[:space:]]*=[[:space:]]*"==([0-9.]+)"/\1/p')
+  PYTHON_RUNTIME_VERSION=$(head --lines=3 "uv.lock" | sed -nE 's/^requires-python[[:space:]]*=[[:space:]]*"==([0-9.]+)"/\1/p')
 else
   log "Force Python version to $PYTHON_RUNTIME_VERSION since the $PYTHON_RUNTIME_VERSION environment variable is set!"
 fi
