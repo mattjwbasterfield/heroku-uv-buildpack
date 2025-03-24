@@ -49,7 +49,7 @@ log "Install uv"
 if [ -n "$UV_VERSION" ]; then
   UV_URL="https://astral.sh/uv/$UV_VERSION/install.sh"
 else
-   UV_URL="https://astral.sh/uv/install.sh"
+  UV_URL="https://astral.sh/uv/install.sh"
 fi
 
 if ! curl -LsSf "$UV_URL" | sh ; then
@@ -62,10 +62,6 @@ export PATH="/app/.local/bin:$PATH"
 
 log "Generate requirements.txt with uv"
 
-REQUIREMENTS_FILE="requirements.txt"
-
-log "Export $REQUIREMENTS_FILE from uv"
-
 cd "$BUILD_DIR"
 
 uv venv
@@ -77,17 +73,17 @@ else
 fi
 uv pip freeze > requirements.txt
 
-RUNTIME_FILE="runtime.txt"
+PYTHON_VERSION_FILE=".python-version"
 
-log "Export Python version from uv to Heroku $RUNTIME_FILE file"
+log "Export Python version from uv to Heroku-compatible $PYTHON_VERSION_FILE file"
 
 if [ "${DISABLE_UV_CREATE_RUNTIME_FILE:-0}" != "0" ] ; then
-  log "Skip generation of $RUNTIME_FILE file from uv.lock"
+  log "Skip generation of $PYTHON_VERSION_FILE from uv.lock"
   exit 0
 fi
 
-if [ -f "$RUNTIME_FILE" ] ; then
-  log "$RUNTIME_FILE found, delete this file from your repository!" >&2
+if [ -f "$PYTHON_VERSION_FILE" ] ; then
+  log "$PYTHON_VERSION_FILE found, delete this file from your repository!" >&2
   exit 1
 fi
 
@@ -99,8 +95,9 @@ else
 fi
 
 if [[ -n "$PYTHON_RUNTIME_VERSION" ]] ; then
-  log "PYTHON_RUNTIME_VERSION is set to $PYTHON_RUNTIME_VERSION"
-  echo "python-$PYTHON_RUNTIME_VERSION" > "$RUNTIME_FILE"
+  PYTHON_MAJOR_MINOR=$(echo "$PYTHON_RUNTIME_VERSION" | cut -d. -f1,2)
+  log "Writing Python version $PYTHON_MAJOR_MINOR to $PYTHON_VERSION_FILE"
+  echo "$PYTHON_MAJOR_MINOR" > "$PYTHON_VERSION_FILE"
 else
   log "$PYTHON_RUNTIME_VERSION is not valid, please specify an exact Python version (e.g. ==3.12.6) in your pyproject.toml (so it can be properly set in uv.lock)" >&2
   exit 1
